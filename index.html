@@ -3,94 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetLife Simulator Ultra</title>
+    <title>PetLife Deluxe</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #a1c4fd; --card: #fdfcf0; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .window { background: var(--card); width: 85%; max-width: 350px; border-radius: 35px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; border: 4px solid #fff; }
-        .header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; background: #fff; padding: 8px 15px; border-radius: 15px; }
-        .pet { font-size: 80px; margin: 10px 0; transition: transform 0.2s; cursor: pointer; }
-        .pet:active { transform: scale(1.2); }
-        .stat-bar { margin: 10px 0; text-align: left; }
-        .bar-bg { background: #eee; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
-        .bar-fill { height: 100%; transition: width 0.3s; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        button { border: none; padding: 12px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
-        button:active { transform: translateY(2px); box-shadow: none; }
-        .btn-f { background: #4caf50; }
-        .btn-p { background: #ff9800; }
-        .btn-u { background: #673ab7; grid-column: span 2; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            /* Красивый игровой фон */
+            background: url('https://img.freepik.com/free-vector/cozy-living-room-interior-design_1262-15462.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-screen {
+            width: 90%;
+            max-width: 400px;
+            height: 80vh;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px); /* Эффект матового стекла */
+            border-radius: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        .pet-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pet-avatar {
+            font-size: 120px;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            transition: 0.3s;
+        }
+
+        .stats-panel {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+        }
+
+        .progress-container { margin: 10px 0; }
+        .progress-label { font-size: 12px; margin-bottom: 5px; display: block; }
+        .progress-bg { background: rgba(255,255,255,0.2); height: 12px; border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: 0.5s; }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 10px;
+        }
+
+        .round-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: #fff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+
+        .round-btn:active { transform: scale(0.9); }
+        
+        .pet-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .mini-pet {
+            background: rgba(255,255,255,0.3);
+            padding: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="window">
-        <div class="header">
-            <span style="color:#673ab7">Lvl <span id="lvl">1</span></span>
-            <span style="color:#d4af37">💰 <span id="coins">0</span></span>
-        </div>
-        <div id="pet" class="pet" onclick="bounce()">🐱</div>
-        <div style="font-size: 14px; color: #777; margin-bottom: 10px;" id="status">Я в порядке!</div>
 
-        <div class="stat-bar">
-            <span style="font-size: 12px; font-weight: bold;">🥩 Сытость: <span id="h-val">70</span>%</span>
-            <div class="bar-bg"><div id="h-bar" class="bar-fill" style="width: 70%; background: #4caf50;"></div></div>
-        </div>
-        <div class="stat-bar">
-            <span style="font-size: 12px; font-weight: bold;">🎾 Счастье: <span id="s-val">50</span>%</span>
-            <div class="bar-bg"><div id="s-bar" class="bar-fill" style="width: 50%; background: #2196f3;"></div></div>
-        </div>
+<div class="game-screen">
+    <div class="top-bar">
+        <span>⭐ Уровень <span id="lvl">1</span></span>
+        <span style="color: #ffd700;">💰 <span id="coins">20</span></span>
+    </div>
 
-        <div class="grid">
-            <button class="btn-f" onclick="doAction('feed')">Кормить (-5💰)</button>
-            <button class="btn-p" onclick="doAction('play')">Играть (+10💰)</button>
-            <button class="btn-u" onclick="doAction('up')">Новый уровень (50💰)</button>
+    <div class="pet-container">
+        <div id="main-pet" class="pet-avatar">🐱</div>
+        <div class="pet-selector">
+            <div class="mini-pet" onclick="changePet('🐱')">🐱</div>
+            <div class="mini-pet" onclick="changePet('🐶')">🐶</div>
+            <div class="mini-pet" onclick="changePet('🐰')">🐰</div>
+            <div class="mini-pet" onclick="changePet('🐹')">🐹</div>
         </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+    <div class="stats-panel">
+        <div class="progress-container">
+            <span class="progress-label">🍎 Сытость</span>
+            <div class="progress-bg"><div id="bar-h" class="progress-fill" style="width: 70%; background: #4caf50;"></div></div>
+        </div>
+        <div class="progress-container">
+            <span class="progress-label">🎾 Счастье</span>
+            <div class="progress-bg"><div id="bar-s" class="progress-fill" style="width: 50%; background: #2196f3;"></div></div>
+        </div>
+    </div>
 
-        let state = JSON.parse(localStorage.getItem('pet_save')) || { h: 70, s: 50, c: 20, l: 1 };
+    <div class="action-bar">
+        <button class="round-btn" onclick="act('feed')">🍲</button>
+        <button class="round-btn" onclick="act('play')">🏀</button>
+        <button class="round-btn" onclick="act('clean')">🧼</button>
+        <button class="round-btn" onclick="act('sleep')">💤</button>
+    </div>
+</div>
 
-        function update() {
-            document.getElementById('h-val').innerText = state.h;
-            document.getElementById('h-bar').style.width = state.h + '%';
-            document.getElementById('s-val').innerText = state.s;
-            document.getElementById('s-bar').style.width = state.s + '%';
-            document.getElementById('coins').innerText = state.c;
-            document.getElementById('lvl').innerText = state.l;
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-            const p = document.getElementById('pet');
-            const st = document.getElementById('status');
-            if(state.h < 30) { p.innerText = "😿"; st.innerText = "Хочу кушать!"; }
-            else if(state.s < 30) { p.innerText = "😿"; st.innerText = "Мне скучно..."; }
-            else { p.innerText = "🐱"; st.innerText = "Всё супер!"; }
-            
-            localStorage.setItem('pet_save', JSON.stringify(state));
-        }
+    let data = JSON.parse(localStorage.getItem('pet_deluxe')) || { h: 70, s: 50, c: 20, l: 1, type: '🐱' };
 
-        function doAction(type) {
-            if(type === 'feed' && state.c >= 5 && state.h < 100) {
-                state.c -= 5; state.h = Math.min(100, state.h + 20);
-            } else if(type === 'play' && state.s < 100) {
-                state.s = Math.min(100, state.s + 15); state.h = Math.max(0, state.h - 10); state.c += 10;
-            } else if(type === 'up' && state.c >= 50) {
-                state.c -= 50; state.l++;
-                tg.HapticFeedback.notificationOccurred('success');
-            }
-            tg.HapticFeedback.impactOccurred('light');
-            update();
-        }
-
-        function bounce() {
-            const p = document.getElementById('pet');
-            p.style.transform = "scale(1.3)";
-            setTimeout(() => p.style.transform = "scale(1)", 200);
-        }
-
+    function changePet(type) {
+        data.type = type;
         update();
-    </script>
+    }
+
+    function update() {
+        document.getElementById('main-pet').innerText = data.type;
+        document.getElementById('bar-h').style.width = data.h + '%';
+        document.getElementById('bar-s').style.width = data.s + '%';
+        document.getElementById('coins').innerText = data.coins;
+        document.getElementById('lvl').innerText = data.l;
+        localStorage.setItem('pet_deluxe', JSON.stringify(data));
+    }
+
+    function act(type) {
+        if(type === 'feed' && data.c >= 5) { data.c -= 5; data.h = Math.min(100, data.h + 20); }
+        if(type === 'play') { data.s = Math.min(100, data.s + 15); data.c += 10; }
+        tg.HapticFeedback.impactOccurred('medium');
+        update();
+    }
+
+    update();
+</script>
+
 </body>
 </html>
