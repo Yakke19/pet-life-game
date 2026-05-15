@@ -3,59 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetLife Simulator Pro</title>
+    <title>PetLife Simulator Ultra</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-bg: #fdfcf0; --accent: #ff9800; }
-        body { font-family: 'Segoe UI', sans-serif; background: #a1c4fd; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .game-window { background: var(--main-bg); width: 90%; max-width: 380px; border-radius: 40px; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 4px solid #fff; position: relative; }
-        .header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; background: #fff; padding: 10px 20px; border-radius: 20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-        .coins { color: #d4af37; }
-        .level { color: #673ab7; }
-        .pet-zone { height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .pet { font-size: 100px; transition: transform 0.2s; cursor: pointer; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
-        .pet:active { transform: scale(1.15); }
-        .stats-container { background: #fff; padding: 15px; border-radius: 25px; margin-bottom: 20px; }
-        .stat-bar { margin-bottom: 10px; }
-        .bar-label { font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
-        .bar-outer { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; }
-        .bar-inner { height: 100%; transition: width 0.4s ease; }
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { border: none; padding: 12px; border-radius: 18px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        :root { --bg: #a1c4fd; --card: #fdfcf0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .window { background: var(--card); width: 85%; max-width: 350px; border-radius: 35px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; border: 4px solid #fff; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; background: #fff; padding: 8px 15px; border-radius: 15px; }
+        .pet { font-size: 80px; margin: 10px 0; transition: transform 0.2s; cursor: pointer; }
+        .pet:active { transform: scale(1.2); }
+        .stat-bar { margin: 10px 0; text-align: left; }
+        .bar-bg { background: #eee; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .bar-fill { height: 100%; transition: width 0.3s; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        button { border: none; padding: 12px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
         button:active { transform: translateY(2px); box-shadow: none; }
-        .btn-feed { background: #4caf50; }
-        .btn-play { background: #2196f3; }
-        .btn-shop { background: #ff5722; grid-column: span 2; }
+        .btn-f { background: #4caf50; }
+        .btn-p { background: #ff9800; }
+        .btn-u { background: #673ab7; grid-column: span 2; }
     </style>
 </head>
 <body>
-
-    <div class="game-window">
+    <div class="window">
         <div class="header">
-            <span class="level">Lvl <span id="lvl">1</span></span>
-            <span class="coins">💰 <span id="coins">0</span></span>
+            <span style="color:#673ab7">Lvl <span id="lvl">1</span></span>
+            <span style="color:#d4af37">💰 <span id="coins">0</span></span>
+        </div>
+        <div id="pet" class="pet" onclick="bounce()">🐱</div>
+        <div style="font-size: 14px; color: #777; margin-bottom: 10px;" id="status">Я в порядке!</div>
+
+        <div class="stat-bar">
+            <span style="font-size: 12px; font-weight: bold;">🥩 Сытость: <span id="h-val">70</span>%</span>
+            <div class="bar-bg"><div id="h-bar" class="bar-fill" style="width: 70%; background: #4caf50;"></div></div>
+        </div>
+        <div class="stat-bar">
+            <span style="font-size: 12px; font-weight: bold;">🎾 Счастье: <span id="s-val">50</span>%</span>
+            <div class="bar-bg"><div id="s-bar" class="bar-fill" style="width: 50%; background: #2196f3;"></div></div>
         </div>
 
-        <div class="pet-zone">
-            <div id="pet" class="pet">🐱</div>
-            <p id="status-text" style="font-size: 14px; color: #666; margin-top: 5px;">Загрузка...</p>
-        </div>
-
-        <div class="stats-container">
-            <div class="stat-bar">
-                <span class="bar-label">🥩 Сытость</span>
-                <div class="bar-outer"><div id="fill-hunger" class="bar-inner" style="width: 70%; background: #4caf50;"></div></div>
-            </div>
-            <div class="stat-bar">
-                <span class="bar-label">🎾 Счастье</span>
-                <div class="bar-outer"><div id="fill-happy" class="bar-inner" style="width: 50%; background: #2196f3;"></div></div>
-            </div>
-        </div>
-
-        <div class="actions">
-            <button class="btn-feed" onclick="feed()">Кормить (5💰)</button>
-            <button class="btn-play" onclick="play()">Играть (+10💰)</button>
-            <button class="btn-shop" onclick="upgrade()">Повысить уровень (50💰)</button>
+        <div class="grid">
+            <button class="btn-f" onclick="doAction('feed')">Кормить (-5💰)</button>
+            <button class="btn-p" onclick="doAction('play')">Играть (+10💰)</button>
+            <button class="btn-u" onclick="doAction('up')">Новый уровень (50💰)</button>
         </div>
     </div>
 
@@ -63,63 +52,45 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // 1. Пытаемся загрузить данные, если их нет - ставим стандартные
-        let savedData = localStorage.getItem('petGame');
-        let data = savedData ? JSON.parse(savedData) : { hunger: 70, happy: 50, coins: 20, lvl: 1 };
+        let state = JSON.parse(localStorage.getItem('pet_save')) || { h: 70, s: 50, c: 20, l: 1 };
 
-        function saveData() {
-            localStorage.setItem('petGame', JSON.stringify(data));
+        function update() {
+            document.getElementById('h-val').innerText = state.h;
+            document.getElementById('h-bar').style.width = state.h + '%';
+            document.getElementById('s-val').innerText = state.s;
+            document.getElementById('s-bar').style.width = state.s + '%';
+            document.getElementById('coins').innerText = state.c;
+            document.getElementById('lvl').innerText = state.l;
+
+            const p = document.getElementById('pet');
+            const st = document.getElementById('status');
+            if(state.h < 30) { p.innerText = "😿"; st.innerText = "Хочу кушать!"; }
+            else if(state.s < 30) { p.innerText = "😿"; st.innerText = "Мне скучно..."; }
+            else { p.innerText = "🐱"; st.innerText = "Всё супер!"; }
+            
+            localStorage.setItem('pet_save', JSON.stringify(state));
         }
 
-        function updateUI() {
-            document.getElementById('fill-hunger').style.width = data.hunger + '%';
-            document.getElementById('fill-happy').style.width = data.happy + '%';
-            document.getElementById('coins').innerText = data.coins;
-            document.getElementById('lvl').innerText = data.lvl;
-
-            const pet = document.getElementById('pet');
-            if (data.hunger < 30) {
-                pet.innerText = "😿";
-                document.getElementById('status-text').innerText = "Я очень голоден...";
-            } else if (data.happy < 30) {
-                pet.innerText = "😿";
-                document.getElementById('status-text').innerText = "Мне скучно...";
-            } else {
-                pet.innerText = "🐱";
-                document.getElementById('status-text').innerText = "Всё отлично!";
-            }
-            saveData(); // Сохраняем после каждого изменения
-        }
-
-        function feed() {
-            if (data.coins >= 5 && data.hunger < 100) {
-                data.coins -= 5;
-                data.hunger = Math.min(100, data.hunger + 20);
+        function doAction(type) {
+            if(type === 'feed' && state.c >= 5 && state.h < 100) {
+                state.c -= 5; state.h = Math.min(100, state.h + 20);
+            } else if(type === 'play' && state.s < 100) {
+                state.s = Math.min(100, state.s + 15); state.h = Math.max(0, state.h - 10); state.c += 10;
+            } else if(type === 'up' && state.c >= 50) {
+                state.c -= 50; state.l++;
                 tg.HapticFeedback.notificationOccurred('success');
-                updateUI();
             }
+            tg.HapticFeedback.impactOccurred('light');
+            update();
         }
 
-        function play() {
-            if (data.happy < 100) {
-                data.happy = Math.min(100, data.happy + 15);
-                data.hunger = Math.max(0, data.hunger - 5);
-                data.coins += 10;
-                tg.HapticFeedback.impactOccurred('medium');
-                updateUI();
-            }
+        function bounce() {
+            const p = document.getElementById('pet');
+            p.style.transform = "scale(1.3)";
+            setTimeout(() => p.style.transform = "scale(1)", 200);
         }
 
-        function upgrade() {
-            if (data.coins >= 50) {
-                data.coins -= 50;
-                data.lvl++;
-                tg.HapticFeedback.notificationOccurred('success');
-                updateUI();
-            }
-        }
-
-        updateUI();
+        update();
     </script>
 </body>
 </html>
