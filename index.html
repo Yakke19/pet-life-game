@@ -3,89 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetLife Game</title>
+    <title>PetLife Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            color: #333;
-        }
-        .pet-container {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 80%;
-            max-width: 300px;
-        }
-        .pet-image {
-            font-size: 80px;
-            margin-bottom: 20px;
-        }
-        .stats {
-            width: 100%;
-            background: #eee;
-            border-radius: 10px;
-            height: 20px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .progress {
-            background: #4caf50;
-            height: 100%;
-            width: 50%; /* Начальное значение сытости */
-            transition: width 0.3s;
-        }
-        button {
-            background: #0088cc;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:active {
-            transform: scale(0.95);
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(180deg, #a1c4fd 0%, #c2e9fb 100%); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .game-card { background: rgba(255, 255, 255, 0.9); border-radius: 30px; padding: 25px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .pet-emoji { font-size: 100px; transition: transform 0.2s; cursor: pointer; }
+        .pet-emoji:active { transform: scale(1.2) rotate(5deg); }
+        .stat-row { margin: 15px 0; text-align: left; }
+        .label { font-weight: bold; font-size: 14px; margin-bottom: 5px; display: block; }
+        .bar-bg { background: #ddd; border-radius: 10px; height: 12px; width: 100%; position: relative; }
+        .bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        button { border: none; padding: 12px; border-radius: 15px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transition: filter 0.2s; }
+        .btn-feed { background: #4caf50; }
+        .btn-play { background: #ff9800; }
+        .btn-sleep { background: #2196f3; }
+        button:active { filter: brightness(0.8); }
     </style>
 </head>
 <body>
-
-    <div class="pet-container">
-        <div class="pet-image">🐱</div>
-        <h2>Рыжик</h2>
-        <p>Сытость: <span id="hunger-val">50</span>%</p>
-        <div class="stats">
-            <div id="progress-bar" class="progress"></div>
+    <div class="game-card">
+        <div class="pet-emoji" id="pet" onclick="bounce()">🐱</div>
+        <h2 style="margin: 10px 0;">Рыжик</h2>
+        
+        <div class="stat-row">
+            <span class="label">🥩 Сытость: <span id="val-hunger">80</span>%</span>
+            <div class="bar-bg"><div id="bar-hunger" class="bar-fill" style="width: 80%; background: #4caf50;"></div></div>
         </div>
-        <button onclick="feed()">Покормить 🍎</button>
+        <div class="stat-row">
+            <span class="label">⚡ Энергия: <span id="val-energy">60</span>%</span>
+            <div class="bar-bg"><div id="bar-energy" class="bar-fill" style="width: 60%; background: #2196f3;"></div></div>
+        </div>
+
+        <div class="btn-grid">
+            <button class="btn-feed" onclick="action('hunger', 15)">Кормить 🍎</button>
+            <button class="btn-play" onclick="action('energy', -10); bounce()">Играть 🎾</button>
+            <button class="btn-sleep" onclick="action('energy', 30)">Спать 💤</button>
+        </div>
     </div>
 
     <script>
-        let hunger = 50;
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Развернуть окно на весь экран
+        tg.expand();
 
-        function feed() {
-            if (hunger < 100) {
-                hunger += 10;
-                if (hunger > 100) hunger = 100;
-                document.getElementById('hunger-val').innerText = hunger;
-                document.getElementById('progress-bar').style.width = hunger + '%';
+        let stats = { hunger: 80, energy: 60 };
 
-                // Вибрация телефона (как в настоящих играх!)
-                tg.HapticFeedback.impactOccurred('medium');
-            }
+        function action(type, value) {
+            stats[type] = Math.min(100, Math.max(0, stats[type] + value));
+            updateUI();
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function updateUI() {
+            document.getElementById('val-hunger').innerText = stats.hunger;
+            document.getElementById('bar-hunger').style.width = stats.hunger + '%';
+            document.getElementById('val-energy').innerText = stats.energy;
+            document.getElementById('bar-energy').style.width = stats.energy + '%';
+            
+            // Если питомец голоден, меняем эмодзи
+            const pet = document.getElementById('pet');
+            if (stats.hunger < 30) pet.innerText = "😿";
+            else if (stats.energy < 20) pet.innerText = "😴";
+            else pet.innerText = "🐱";
+        }
+
+        function bounce() {
+            const pet = document.getElementById('pet');
+            pet.style.transform = "scale(1.2)";
+            setTimeout(() => pet.style.transform = "scale(1)", 200);
         }
     </script>
 </body>
