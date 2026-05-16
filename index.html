@@ -3,174 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetLife Deluxe</title>
+    <title>Dungeon Clicker RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            /* Красивый игровой фон */
-            background: url('https://img.freepik.com/free-vector/cozy-living-room-interior-design_1262-15462.jpg') no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh;
+            background: #1a1a2e; /* Темный фэнтезийный фон */
+            color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .game-screen {
+        .game-window {
             width: 90%;
-            max-width: 400px;
-            height: 80vh;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px); /* Эффект матового стекла */
-            border-radius: 40px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            max-width: 380px;
+            height: 85vh;
+            background: linear-gradient(145deg, #161623, #1f1f3a);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 2px solid #e94560;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            box-sizing: border-box;
             position: relative;
-            color: #fff;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
-        .top-bar {
+        .top-status {
             display: flex;
             justify-content: space-between;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            border-radius: 20px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .pet-container {
+        .dungeon-zone {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
-        .pet-avatar {
-            font-size: 120px;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
-            transition: 0.3s;
+        .monster {
+            font-size: 110px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+            filter: drop-shadow(0 10px 20px rgba(233, 69, 96, 0.3));
         }
 
-        .stats-panel {
-            background: rgba(0, 0, 0, 0.6);
+        .monster:active {
+            transform: scale(0.9) rotate(5deg);
+        }
+
+        .hp-container {
+            width: 80%;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .hp-bar-bg {
+            background: #444;
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+            border: 1px solid #000;
+            margin-top: 5px;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            background: #e94560;
+            width: 100%;
+            transition: width 0.1s ease;
+        }
+
+        .shop-zone {
+            background: rgba(0, 0, 0, 0.5);
             padding: 15px;
-            border-radius: 25px;
-            margin-bottom: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .progress-container { margin: 10px 0; }
-        .progress-label { font-size: 12px; margin-bottom: 5px; display: block; }
-        .progress-bg { background: rgba(255,255,255,0.2); height: 12px; border-radius: 6px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: 0.5s; }
-
-        .action-bar {
+        .weapon-info {
             display: flex;
-            justify-content: space-around;
-            padding-bottom: 10px;
-        }
-
-        .round-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            background: #fff;
-            font-size: 24px;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: 0.2s;
+            font-size: 14px;
         }
 
-        .round-btn:active { transform: scale(0.9); }
-        
-        .pet-selector {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .mini-pet {
-            background: rgba(255,255,255,0.3);
-            padding: 5px;
-            border-radius: 10px;
+        .upgrade-btn {
+            background: #0f969c;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 4px 0 #07686c;
+            transition: 0.1s;
+        }
+
+        .upgrade-btn:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        .damage-text {
+            position: absolute;
+            color: #ff4a4a;
+            font-weight: bold;
+            font-size: 24px;
+            animation: floatUp 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
         }
     </style>
 </head>
 <body>
 
-<div class="game-screen">
-    <div class="top-bar">
-        <span>⭐ Уровень <span id="lvl">1</span></span>
-        <span style="color: #ffd700;">💰 <span id="coins">20</span></span>
-    </div>
+    <div class="game-window">
+        <div class="top-status">
+            <span style="color: #e94560;">🏰 Этаж: <span id="stage">1</span></span>
+            <span style="color: #ffd700;">💰 Золото: <span id="gold">0</span></span>
+        </div>
 
-    <div class="pet-container">
-        <div id="main-pet" class="pet-avatar">🐱</div>
-        <div class="pet-selector">
-            <div class="mini-pet" onclick="changePet('🐱')">🐱</div>
-            <div class="mini-pet" onclick="changePet('🐶')">🐶</div>
-            <div class="mini-pet" onclick="changePet('🐰')">🐰</div>
-            <div class="mini-pet" onclick="changePet('🐹')">🐹</div>
+        <div class="dungeon-zone">
+            <div id="monster-name" style="font-size: 16px; font-weight: bold; color: #aaa; margin-bottom: 5px;">Гоблин</div>
+            <div id="monster" class="monster" onclick="dealDamage(event)">👹</div>
+            
+            <div class="hp-container">
+                <span style="font-size: 12px; font-weight: bold;">HP: <span id="hp-text">50/50</span></span>
+                <div class="hp-bar-bg"><div id="hp-bar" class="hp-bar-fill"></div></div>
+            </div>
+        </div>
+
+        <div class="shop-zone">
+            <div class="weapon-info">
+                <div>
+                    <div style="font-weight: bold;" id="weapon-name">⚔️ Ржавый меч (Лвл 1)</div>
+                    <div style="color: #0f969c; font-size: 12px;">Урон за клик: +<span id="dmg-val">1</span></div>
+                </div>
+                <button class="upgrade-btn" onclick="upgradeWeapon()">Апгрейд (<span id="cost-val">15</span>💰)</button>
+            </div>
         </div>
     </div>
-
-    <div class="stats-panel">
-        <div class="progress-container">
-            <span class="progress-label">🍎 Сытость</span>
-            <div class="progress-bg"><div id="bar-h" class="progress-fill" style="width: 70%; background: #4caf50;"></div></div>
-        </div>
-        <div class="progress-container">
-            <span class="progress-label">🎾 Счастье</span>
-            <div class="progress-bg"><div id="bar-s" class="progress-fill" style="width: 50%; background: #2196f3;"></div></div>
-        </div>
-    </div>
-
-    <div class="action-bar">
-        <button class="round-btn" onclick="act('feed')">🍲</button>
-        <button class="round-btn" onclick="act('play')">🏀</button>
-        <button class="round-btn" onclick="act('clean')">🧼</button>
-        <button class="round-btn" onclick="act('sleep')">💤</button>
-    </div>
-</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    let data = JSON.parse(localStorage.getItem('pet_deluxe')) || { h: 70, s: 50, c: 20, l: 1, type: '🐱' };
+    // Список монстров и боссов
+    const monsters = ["👹 Гоблин", "💀 Скелет", "🧛 Вампир", "🐺 Оборотень"];
+    const bosses = ["🐉 Древний Дракон", "👑 Повелитель Тьмы", "👿 Демон Бездны"];
 
-    function changePet(type) {
-        data.type = type;
-        update();
+    // Базовые параметры
+    let save = JSON.parse(localStorage.getItem('dungeon_save')) || {
+        gold: 0,
+        stage: 1,
+        weaponLvl: 1,
+        dmg: 1,
+        upgradeCost: 15
+    };
+
+    let maxHp = 0;
+    let currentHp = 0;
+    let isBoss = false;
+
+    function initMonster() {
+        // Каждый 5-й уровень — Босс
+        if (save.stage % 5 === 0) {
+            isBoss = true;
+            maxHp = save.stage * 40;
+            const randomBoss = bosses[Math.floor(Math.random() * bosses.length)];
+            document.getElementById('monster-name').innerText = "🔥 БОСС: " + randomBoss.split(' ')[1];
+            document.getElementById('monster').innerText = randomBoss.split(' ')[0];
+            document.getElementById('hp-bar').style.background = "#ffcc00"; // Желтая шкала для босса
+        } else {
+            isBoss = false;
+            maxHp = save.stage * 15 + 20;
+            const randomMonster = monsters[Math.floor(Math.random() * monsters.length)];
+            document.getElementById('monster-name').innerText = randomMonster.split(' ')[1];
+            document.getElementById('monster').innerText = randomMonster.split(' ')[0];
+            document.getElementById('hp-bar').style.background = "#e94560";
+        }
+        currentHp = maxHp;
+        updateUI();
     }
 
-    function update() {
-        document.getElementById('main-pet').innerText = data.type;
-        document.getElementById('bar-h').style.width = data.h + '%';
-        document.getElementById('bar-s').style.width = data.s + '%';
-        document.getElementById('coins').innerText = data.coins;
-        document.getElementById('lvl').innerText = data.l;
-        localStorage.setItem('pet_deluxe', JSON.stringify(data));
+    function updateUI() {
+        document.getElementById('stage').innerText = save.stage;
+        document.getElementById('gold').innerText = save.gold;
+        document.getElementById('hp-text').innerText = `${currentHp}/${maxHp}`;
+        
+        let pct = (currentHp / maxHp) * 100;
+        document.getElementById('hp-bar').style.width = pct + '%';
+
+        // Обновление магазина
+        document.getElementById('weapon-name').innerText = `⚔️ Стальной меч (Лвл ${save.weaponLvl})`;
+        document.getElementById('dmg-val').innerText = save.dmg;
+        document.getElementById('cost-val').innerText = save.upgradeCost;
+
+        localStorage.setItem('dungeon_save', JSON.stringify(save));
     }
 
-    function act(type) {
-        if(type === 'feed' && data.c >= 5) { data.c -= 5; data.h = Math.min(100, data.h + 20); }
-        if(type === 'play') { data.s = Math.min(100, data.s + 15); data.c += 10; }
-        tg.HapticFeedback.impactOccurred('medium');
-        update();
+    function dealDamage(event) {
+        currentHp -= save.dmg;
+        save.gold += isBoss ? save.stage * 3 : 1; // За босса золота больше
+        
+        // Визуальный эффект урона (вылетающие цифры)
+        createDamageText(event.clientX, event.clientY, `-${save.dmg}`);
+        
+        tg.HapticFeedback.impactOccurred('light');
+
+        if (currentHp <= 0) {
+            save.stage++;
+            save.gold += save.stage * 5; // Бонус за прохождение уровня
+            tg.HapticFeedback.notificationOccurred('success');
+            initMonster();
+        } else {
+            updateUI();
+        }
     }
 
-    update();
+    function createDamageText(x, y, text) {
+        const txt = document.createElement('div');
+        txt.className = 'damage-text';
+        txt.innerText = text;
+        txt.style.left = (x - 15) + 'px';
+        txt.style.top = (y - 30) + 'px';
+        document.body.appendChild(txt);
+        setTimeout(() => txt.remove(), 600);
+    }
+
+    function upgradeWeapon() {
+        if (save.gold >= save.upgradeCost) {
+            save.gold -= save.upgradeCost;
+            save.weaponLvl++;
+            save.dmg += 2;
+            save.upgradeCost = Math.round(save.upgradeCost * 1.6);
+            tg.HapticFeedback.notificationOccurred('success');
+            updateUI();
+        }
+    }
+
+    // Старт игры
+    initMonster();
 </script>
-
-</body>
-</html>
