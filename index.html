@@ -3,262 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dungeon Clicker RPG</title>
+    <title>Dungeon Card Battler</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background: #1a1a2e; /* Темный фэнтезийный фон */
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .game-window {
-            width: 90%;
-            max-width: 380px;
-            height: 85vh;
-            background: linear-gradient(145deg, #161623, #1f1f3a);
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 2px solid #e94560;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .top-status {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 10px 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .dungeon-zone {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .monster {
-            font-size: 110px;
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s ease;
-            filter: drop-shadow(0 10px 20px rgba(233, 69, 96, 0.3));
-        }
-
-        .monster:active {
-            transform: scale(0.9) rotate(5deg);
-        }
-
-        .hp-container {
-            width: 80%;
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .hp-bar-bg {
-            background: #444;
-            height: 14px;
-            border-radius: 7px;
-            overflow: hidden;
-            border: 1px solid #000;
-            margin-top: 5px;
-        }
-
-        .hp-bar-fill {
-            height: 100%;
-            background: #e94560;
-            width: 100%;
-            transition: width 0.1s ease;
-        }
-
-        .shop-zone {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .weapon-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-        }
-
-        .upgrade-btn {
-            background: #0f969c;
-            border: none;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #07686c;
-            transition: 0.1s;
-        }
-
-        .upgrade-btn:active {
-            transform: translateY(3px);
-            box-shadow: none;
-        }
-
-        .damage-text {
-            position: absolute;
-            color: #ff4a4a;
-            font-weight: bold;
-            font-size: 24px;
-            animation: floatUp 0.6s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-60px); }
-        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #11131e; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .window { width: 92%; max-width: 380px; height: 90vh; background: #1a1c28; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); border: 2px solid #5a4fcf; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; justify-content: space-between; }
+        .hud { display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 12px; font-size: 14px; font-weight: bold; }
+        .arena { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; }
+        .monster-box { text-align: center; margin-bottom: 20px; position: relative; }
+        .monster-avatar { font-size: 90px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); transition: transform 0.2s; }
+        .intent { background: rgba(255, 0, 0, 0.2); padding: 3px 8px; border-radius: 8px; font-size: 12px; border: 1px solid rgba(255,0,0,0.3); display: inline-block; margin-bottom: 5px; }
+        .bar { width: 160px; background: #333; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #000; margin: 3px auto; }
+        .fill { height: 100%; transition: width 0.3s; }
+        .player-box { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 20px; width: 100%; box-sizing: border-box; text-align: center; }
+        .energy-dots { font-size: 18px; color: #00d2ff; margin-bottom: 8px; font-weight: bold; }
+        .hand { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .card { background: linear-gradient(135deg, #2e314d, #1c1e36); border: 2px solid #5a4fcf; border-radius: 12px; padding: 10px 5px; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: transform 0.1s, border-color 0.2s; }
+        .card:active { transform: scale(0.95); }
+        .card.disabled { opacity: 0.4; border-color: #333; cursor: not-allowed; }
+        .card-cost { background: #00d2ff; color: #000; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 5px; }
+        .log { font-size: 12px; color: #aaa; min-height: 18px; margin-top: 5px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="game-window">
-        <div class="top-status">
-            <span style="color: #e94560;">🏰 Этаж: <span id="stage">1</span></span>
-            <span style="color: #ffd700;">💰 Золото: <span id="gold">0</span></span>
+<div class="window">
+    <div class="hud">
+        <span style="color: #5a4fcf;">🏰 ЭТАЖ: <span id="stage">1</span></span>
+        <span style="color: #ffd700;">💰 ЗОЛОТО: <span id="gold">0</span></span>
+    </div>
+
+    <div class="arena">
+        <div class="monster-box">
+            <div id="m-intent" class="intent">⚔️ Готовит удар: 6 пао</div>
+            <div id="m-avatar" class="monster-avatar">💀</div>
+            <div id="m-name" style="font-weight: bold; font-size: 15px;">Скелет</div>
+            <div class="bar"><div id="m-hp-bar" class="fill" style="background: #ff4a4a; width: 100%;"></div></div>
+            <div style="font-size: 11px;" id="m-hp-text">20/20 HP</div>
         </div>
 
-        <div class="dungeon-zone">
-            <div id="monster-name" style="font-size: 16px; font-weight: bold; color: #aaa; margin-bottom: 5px;">Гоблин</div>
-            <div id="monster" class="monster" onclick="dealDamage(event)">👹</div>
+        <div class="player-box">
+            <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">Ты (Рыцарь)</div>
+            <div class="bar" style="width: 200px;"><div id="p-hp-bar" class="fill" style="background: #4caf50; width: 100%;"></div></div>
+            <div style="font-size: 11px; margin-bottom: 5px;" id="p-hp-text">50/50 HP <span id="p-block-text" style="color:#00d2ff"></span></div>
             
-            <div class="hp-container">
-                <span style="font-size: 12px; font-weight: bold;">HP: <span id="hp-text">50/50</span></span>
-                <div class="hp-bar-bg"><div id="hp-bar" class="hp-bar-fill"></div></div>
-            </div>
-        </div>
-
-        <div class="shop-zone">
-            <div class="weapon-info">
-                <div>
-                    <div style="font-weight: bold;" id="weapon-name">⚔️ Ржавый меч (Лвл 1)</div>
-                    <div style="color: #0f969c; font-size: 12px;">Урон за клик: +<span id="dmg-val">1</span></div>
+            <div id="energy-display" class="energy-dots">⚡ Энергия: 3/3</div>
+            
+            <div class="hand">
+                <div class="card" onclick="playCard('attack')">
+                    <div class="card-cost">1</div>
+                    <div style="font-size: 18px;">⚔️</div>
+                    <div style="font-size: 11px; font-weight: bold;">Удар</div>
+                    <div style="font-size: 9px; color: #ccc;">+7 Урона</div>
                 </div>
-                <button class="upgrade-btn" onclick="upgradeWeapon()">Апгрейд (<span id="cost-val">15</span>💰)</button>
+                <div class="card" onclick="playCard('block')">
+                    <div class="card-cost">1</div>
+                    <div style="font-size: 18px;">🛡️</div>
+                    <div style="font-size: 11px; font-weight: bold;">Блок</div>
+                    <div style="font-size: 9px; color: #ccc;">+6 Защиты</div>
+                </div>
+                <div class="card" onclick="playCard('heal')">
+                    <div class="card-cost">2</div>
+                    <div style="font-size: 18px;">🧪</div>
+                    <div style="font-size: 11px; font-weight: bold;">Лечение</div>
+                    <div style="font-size: 9px; color: #ccc;">+10 HP</div>
+                </div>
             </div>
+            <button onclick="endTurn()" style="margin-top: 10px; width: 100%; background: #5a4fcf; border: none; color: white; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer;">Конец хода ➡️</button>
         </div>
     </div>
+    <div id="combat-log" class="log">Твой ход! Выбирай карты.</div>
+</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Список монстров и боссов
-    const monsters = ["👹 Гоблин", "💀 Скелет", "🧛 Вампир", "🐺 Оборотень"];
-    const bosses = ["🐉 Древний Дракон", "👑 Повелитель Тьмы", "👿 Демон Бездны"];
+    const mTypes = [
+        { name: "Гоблин 👺", hp: 25, dmg: 5, emoji: "👺" },
+        { name: "Скелет 💀", hp: 35, dmg: 7, emoji: "💀" },
+        { name: "Оборотень 🐺", hp: 45, dmg: 9, emoji: "🐺" },
+        { name: "БОСС: Дракон 🐉", hp: 80, dmg: 14, emoji: "🐉" }
+    ];
 
-    // Базовые параметры
-    let save = JSON.parse(localStorage.getItem('dungeon_save')) || {
-        gold: 0,
-        stage: 1,
-        weaponLvl: 1,
-        dmg: 1,
-        upgradeCost: 15
-    };
+    let state = JSON.parse(localStorage.getItem('dungeon_turn_save')) || { stage: 1, gold: 0 };
+    let pHp = 50, pMaxHp = 50, pBlock = 0, pEnergy = 3;
+    let mHp = 20, mMaxHp = 20, mDmg = 5, mIntent = 'attack'; // attack или defend
 
-    let maxHp = 0;
-    let currentHp = 0;
-    let isBoss = false;
-
-    function initMonster() {
-        // Каждый 5-й уровень — Босс
-        if (save.stage % 5 === 0) {
-            isBoss = true;
-            maxHp = save.stage * 40;
-            const randomBoss = bosses[Math.floor(Math.random() * bosses.length)];
-            document.getElementById('monster-name').innerText = "🔥 БОСС: " + randomBoss.split(' ')[1];
-            document.getElementById('monster').innerText = randomBoss.split(' ')[0];
-            document.getElementById('hp-bar').style.background = "#ffcc00"; // Желтая шкала для босса
-        } else {
-            isBoss = false;
-            maxHp = save.stage * 15 + 20;
-            const randomMonster = monsters[Math.floor(Math.random() * monsters.length)];
-            document.getElementById('monster-name').innerText = randomMonster.split(' ')[1];
-            document.getElementById('monster').innerText = randomMonster.split(' ')[0];
-            document.getElementById('hp-bar').style.background = "#e94560";
-        }
-        currentHp = maxHp;
+    function initFloor() {
+        pEnergy = 3;
+        pBlock = 0;
+        let info = mTypes[Math.min(mTypes.length - 1, Math.floor((state.stage - 1) / 2))];
+        if (state.stage % 5 === 0) info = mTypes[3]; // Каждые 5 этажей — дракон
+        
+        mMaxHp = info.hp + (state.stage * 3);
+        mHp = mMaxHp;
+        mDmg = info.dmg + Math.floor(state.stage * 0.8);
+        
+        document.getElementById('m-name').innerText = info.name;
+        document.getElementById('m-avatar').innerText = info.emoji;
+        
+        rollMonsterIntent();
         updateUI();
     }
 
-    function updateUI() {
-        document.getElementById('stage').innerText = save.stage;
-        document.getElementById('gold').innerText = save.gold;
-        document.getElementById('hp-text').innerText = `${currentHp}/${maxHp}`;
-        
-        let pct = (currentHp / maxHp) * 100;
-        document.getElementById('hp-bar').style.width = pct + '%';
-
-        // Обновление магазина
-        document.getElementById('weapon-name').innerText = `⚔️ Стальной меч (Лвл ${save.weaponLvl})`;
-        document.getElementById('dmg-val').innerText = save.dmg;
-        document.getElementById('cost-val').innerText = save.upgradeCost;
-
-        localStorage.setItem('dungeon_save', JSON.stringify(save));
+    function rollMonsterIntent() {
+        mIntent = Math.random() > 0.4 ? 'attack' : 'defend';
+        const intentTxt = document.getElementById('m-intent');
+        if(mIntent === 'attack') {
+            intentTxt.innerText = `⚔️ Намерен атаковать на: ${mDmg} урона`;
+            intentTxt.style.background = "rgba(255,0,0,0.2)";
+        } else {
+            intentTxt.innerText = `🛡️ Собирается защищаться`;
+            intentTxt.style.background = "rgba(0,180,255,0.2)";
+        }
     }
 
-    function dealDamage(event) {
-        currentHp -= save.dmg;
-        save.gold += isBoss ? save.stage * 3 : 1; // За босса золота больше
+    function updateUI() {
+        // Игрок
+        document.getElementById('p-hp-text').innerHTML = `${pHp}/${pMaxHp} HP ${pBlock > 0 ? `<span style='color:#00d2ff'>[+${pBlock} 🛡️]</span>` : ''}`;
+        document.getElementById('p-hp-bar').style.width = (pHp / pMaxHp) * 100 + '%';
+        document.getElementById('energy-display').innerText = `⚡ Энергия: ${pEnergy}/3`;
         
-        // Визуальный эффект урона (вылетающие цифры)
-        createDamageText(event.clientX, event.clientY, `-${save.dmg}`);
+        // Враг
+        document.getElementById('m-hp-text').innerText = `${mHp}/${mMaxHp} HP`;
+        document.getElementById('m-hp-bar').style.width = (mHp / mMaxHp) * 100 + '%';
         
-        tg.HapticFeedback.impactOccurred('light');
+        // Общие данные
+        document.getElementById('stage').innerText = state.stage;
+        document.getElementById('gold').innerText = state.gold;
+        
+        localStorage.setItem('dungeon_turn_save', JSON.stringify(state));
+    }
 
-        if (currentHp <= 0) {
-            save.stage++;
-            save.gold += save.stage * 5; // Бонус за прохождение уровня
+    function playCard(type) {
+        if (type === 'attack' && pEnergy >= 1) {
+            pEnergy -= 1;
+            let dmg = 7;
+            mHp = Math.max(0, mHp - dmg);
+            log(`Ты нанес ${dmg} урона врагу!`);
+            tg.HapticFeedback.impactOccurred('light');
+        } else if (type === 'block' && pEnergy >= 1) {
+            pEnergy -= 1;
+            pBlock += 6;
+            log(`Ты выставил щит на +6 защиты!`);
+            tg.HapticFeedback.impactOccurred('light');
+        } else if (type === 'heal' && pEnergy >= 2) {
+            pEnergy -= 2;
+            pHp = Math.min(pMaxHp, pHp + 10);
+            log(`Ты восстановил 10 HP!`);
             tg.HapticFeedback.notificationOccurred('success');
-            initMonster();
+        } else {
+            return; // Нет энергии
+        }
+
+        if (mHp <= 0) {
+            state.stage++;
+            state.gold += state.stage * 6;
+            log(`Победа! Вы переходите на этаж ${state.stage}`);
+            tg.HapticFeedback.notificationOccurred('success');
+            setTimeout(initFloor, 1200);
         } else {
             updateUI();
         }
     }
 
-    function createDamageText(x, y, text) {
-        const txt = document.createElement('div');
-        txt.className = 'damage-text';
-        txt.innerText = text;
-        txt.style.left = (x - 15) + 'px';
-        txt.style.top = (y - 30) + 'px';
-        document.body.appendChild(txt);
-        setTimeout(() => txt.remove(), 600);
-    }
+    function endTurn() {
+        // Ход монстра
+        if (mHp <= 0) return;
+        
+        document.getElementById('m-avatar').style.transform = "scale(1.2)";
+        setTimeout(() => document.getElementById('m-avatar').style.transform = "scale(1)", 200);
 
-    function upgradeWeapon() {
-        if (save.gold >= save.upgradeCost) {
-            save.gold -= save.upgradeCost;
-            save.weaponLvl++;
-            save.dmg += 2;
-            save.upgradeCost = Math.round(save.upgradeCost * 1.6);
-            tg.HapticFeedback.notificationOccurred('success');
+        if (mIntent === 'attack') {
+            let finalDmg = Math.max(0, mDmg - pBlock);
+            pHp = Math.max(0, pHp - finalDmg);
+            log(`Монстр бьет на ${mDmg}. Твой блок поглотил урон. Ты получил ${finalDmg} урона!`);
+        } else {
+            mHp = Math.min(mMaxHp, mHp + 5);
+            log(`Монстр ушел в защиту и восстановил 5 HP!`);
+        }
+
+        pBlock = 0; // Блок сгорает в конце раунда
+        pEnergy = 3; // Энергия восстанавливается
+
+        if (pHp <= 0) {
+            log(`Ты погиб! Отступление на 1 этаж назад.`);
+            state.stage = Math.max(1, state.stage - 1);
+            pHp = pMaxHp;
+            setTimeout(initFloor, 1500);
+        } else {
+            rollMonsterIntent();
             updateUI();
         }
     }
 
-    // Старт игры
-    initMonster();
+    function log(msg) {
+        document.getElementById('combat-log').innerText = msg;
+    }
+
+    initFloor();
 </script>
+
+</body>
+</html>
